@@ -39,13 +39,38 @@ curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/80,/0/default.jpg" --output
 # We'll need to leave space for outputting artwork info
 # To do so, we need to estimate how many lines the info will take to render
 function linecount() {
-    echo "$1" | wc -l
+
+    COLS="$(tput cols)"
+    L=0
+
+    # Account for line wrap in narrow consoles
+    while IFS=$'\n' read -ra ROWS; do
+        for ROW in "${ROWS[@]}"; do
+
+            # https://stackoverflow.com/questions/2395284/round-a-divided-number-in-bash
+            L="$(( ${L}+(${#ROW}+${COLS}-1)/${COLS} ))"
+
+        done
+    done <<< "$1"
+
+    echo "$L"
 }
+
+# Not the same algorithm as on the website, but accurate enough for simpler titles
+# https://stackoverflow.com/questions/47050589/create-url-friendly-slug-with-pure-bash
+slugify () {
+    echo "$1" | iconv -c -t ascii//TRANSLIT | sed -r s/[~\^]+//g | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z
+}
+
+# Build output lines so we can measure them, mirroring website conventions
+OUTPUT_TITLE_DATE="$ARTWORK_TITLE, $ARTWORK_DATE"
+OUTPUT_ARTIST="$ARTWORK_ARTIST"
+OUTPUT_URL="https://www.artic.edu/artworks/$ARTWORK_ID/$(slugify "$ARTWORK_TITLE")"
 
 # We cheat here and modify the built-in variable for terminal height
 # This causes jp2a to underestimate when doing --term-fit
 OLD_LINES="$(tput lines)"
-export LINES="$(( ${OLD_LINES}-$(linecount "$ARTWORK_TITLE, $ARTWORK_DATE")-$(linecount "$ARTWORK_ARTIST")-1 ))"
+export LINES="$(( ${OLD_LINES}-$(linecount "$OUTPUT_TITLE_DATE")-$(linecount "$OUTPUT_ARTIST")-$(linecount "$OUTPUT_URL") ))"
 
 # https://github.com/cslarsen/jp2a
 INPUT="$(jp2a --term-fit --color --html $OPT_FILL "$IMAGE_PATH")"
@@ -160,15 +185,10 @@ fi
 
 printf "$OUTPUT"
 
-# https://stackoverflow.com/questions/47050589/create-url-friendly-slug-with-pure-bash
-slugify () {
-    echo "$1" | iconv -t ascii//TRANSLIT | sed -r s/[~\^]+//g | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z
-}
-
 # Output artwork info
-echo "$ARTWORK_TITLE, $ARTWORK_DATE"
-echo "$ARTWORK_ARTIST"
-echo "https://www.artic.edu/artworks/$ARTWORK_ID/$(slugify "$ARTWORK_TITLE")"
+echo "$OUTPUT_TITLE_DATE"
+echo "$OUTPUT_ARTIST"
+echo "$OUTPUT_URL"
 
 # Clean up temporary files
 rm "$IMAGE_PATH"
