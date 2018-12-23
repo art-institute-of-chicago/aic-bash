@@ -61,12 +61,13 @@ if [ -z "$OPT_FILL" ]; then
                     C="${COL[3]//&/ }"
 
                     #  https://gist.github.com/XVilka/8346728
-                    OUTPUT+="\033[38;2;${R};${G};${B}m${C}\033[0m"
+                    OUTPUT+="\033[38;2;${R};${G};${B}m${C}"
 
                 done
             done <<< "$ROW"
 
-            OUTPUT+='\n'
+            # Reset color and insert newline
+            OUTPUT+='\033[0m\n'
 
         done
     done <<< "$INPUT"
@@ -107,12 +108,13 @@ else
                     C="${COL[6]//&/ }"
 
                     # https://gist.github.com/XVilka/8346728
-                    OUTPUT+="\033[38;2;${R};${G};${B}m${C}\033[0m"
+                    OUTPUT+="\033[38;2;${R};${G};${B}m${C}"
 
                 done
             done <<< "$ROW"
 
-            OUTPUT+='\n'
+            # Reset color and insert newline
+            OUTPUT+='\033[0m\n'
 
         done
     done <<< "$INPUT"
