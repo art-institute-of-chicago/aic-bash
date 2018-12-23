@@ -80,7 +80,12 @@ ARTWORK_ARTIST="$(echo "$API_RESPONSE" | jq -r '.data[0].artist_display')"
 IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
 
 # Download image from AIC's IIIF server
-curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/400,/0/default.jpg" --output "$FILE_IMAGE"
+STATUS="$(curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/400,/0/default.jpg" -w %{http_code} -m 5 --output "$FILE_IMAGE")"
+
+if [ ! "$STATUS" = "200" ]; then
+    echo "Sorry, we are having trouble downloading the image. Try again later!"
+    exit 1
+fi
 
 # We'll need to leave space for outputting artwork info
 # To do so, we need to estimate how many lines the info will take to render
