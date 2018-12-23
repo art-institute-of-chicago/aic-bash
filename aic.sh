@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
+DIR_SCRIPT="$(dirname "${BASH_SOURCE[0]}")"
+DIR_QUERIES="$DIR_SCRIPT/queries"
+
+IMAGE_PATH="/tmp/default.jpg"
+
 # Check what flags were passed
 while test $# != 0
 do
@@ -10,11 +16,23 @@ do
     shift
 done
 
-IMAGE_ID="d02e0079-8e82-733e-683c-cb83a387ee5e"
-IMAGE_PATH="/tmp/default.jpg"
+API_URL='https://aggregator-data.artic.edu/api/v1/search'
+API_QUERY="$(cat "$DIR_QUERIES/default-random-public-domain-oil-painting.json")"
 
+# Replace "VAR_NOW" in query with an actual timestamp
+API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_NOW/$(date +"%T")/g")"
+
+# Assume that the response contains at least one artwork record
+API_RESPONSE="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" "$API_URL")"
+
+# Parse artwork fields using jq
+# https://stedolan.github.io/jq/
+IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
+
+# Download image from AIC's IIIF server
 curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/80,/0/default.jpg" --output "$IMAGE_PATH"
 
+# https://github.com/cslarsen/jp2a
 INPUT="$(jp2a --term-fit --color --html $OPT_FILL "$IMAGE_PATH")"
 
 # Remove HTML tags from beginning and end
@@ -32,7 +50,8 @@ INPUT="${INPUT//<br\/>/$'\n'}"
 # Start building our output for rendering
 OUTPUT=''
 
-
+# For performance, we'll do just one check here, rather than inside the loops
+# This causes code duplication, so be sure to double check when you make changes
 if [ -z "$OPT_FILL" ]; then
 
     # Split HTML by <br/> into rows
