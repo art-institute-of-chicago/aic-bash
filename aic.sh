@@ -36,11 +36,16 @@ IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
 # Download image from AIC's IIIF server
 curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/80,/0/default.jpg" --output "$IMAGE_PATH"
 
+# We'll need to leave space for outputting artwork info
+# To do so, we need to estimate how many lines the info will take to render
+function linecount() {
+    echo "$1" | wc -l
+}
+
 # We cheat here and modify the built-in variable for terminal height
 # This causes jp2a to underestimate when doing --term-fit
-# We need the extra space to output artwork info
 OLD_LINES="$(tput lines)"
-export LINES="$(( ${OLD_LINES}-4 ))"
+export LINES="$(( ${OLD_LINES}-$(linecount "$ARTWORK_TITLE, $ARTWORK_DATE")-$(linecount "$ARTWORK_ARTIST")-1 ))"
 
 # https://github.com/cslarsen/jp2a
 INPUT="$(jp2a --term-fit --color --html $OPT_FILL "$IMAGE_PATH")"
