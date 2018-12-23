@@ -5,14 +5,15 @@ DIR_SCRIPT="$(dirname "${BASH_SOURCE[0]}")"
 DIR_QUERIES="$DIR_SCRIPT/queries"
 
 IMAGE_PATH="/tmp/default.jpg"
+OPT_FILL='--fill' # fill by default
 
 # Check what options were passed
 while test $# != 0
 do
     case "$1" in
-    -f|--fill) OPT_FILL=--fill ;;
     -i|--id) OPT_ID=$2; shift ;;
     -j|--json) OPT_JSON=$2; shift ;;
+    -n|--no-fill) OPT_FILL='' ;;
     -q|--query) OPT_FULLTEXT=$2; shift ;;
     *)  usage ;; # TODO: Define me!
     esac
@@ -131,7 +132,7 @@ OUTPUT=''
 
 # For performance, we'll do just one check here, rather than inside the loops
 # This causes code duplication, so be sure to double check when you make changes
-if [ -z "$OPT_FILL" ]; then
+if [ ! "$OPT_FILL" = '--fill' ]; then
 
     # Split HTML by <br/> into rows
     while IFS=$'\n' read -ra ROWS; do
