@@ -11,6 +11,7 @@ while test $# != 0
 do
     case "$1" in
     -f|--fill) OPT_FILL=--fill ;;
+    -i|--id) OPT_ID=$2; shift ;;
     -j|--json) OPT_JSON=$2; shift ;;
     -q|--query) OPT_FULLTEXT=$2; shift ;;
     *)  usage ;; # TODO: Define me!
@@ -20,7 +21,9 @@ done
 
 API_URL='https://aggregator-data.artic.edu/api/v1/search'
 
-if [ -z "$OPT_JSON" ]; then
+if [ ! -z "$OPT_ID" ]; then
+    OPT_JSON="$DIR_QUERIES/default-id.json"
+elif [ -z "$OPT_JSON" ]; then
     if [ -z "$OPT_FULLTEXT" ]; then
         OPT_JSON="$DIR_QUERIES/default-random-public-domain-oil-painting.json"
     else
@@ -35,6 +38,9 @@ API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_NOW/$(date +"%T")/g")"
 
 # Replace "VAR_FULLTEXT" in query with the supplied text
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_FULLTEXT/$OPT_FULLTEXT/g")"
+
+# Replace "VAR_ID" in query with the --id parameter
+API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_ID/$OPT_ID/g")"
 
 # Assume that the response contains at least one artwork record
 API_RESPONSE="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" "$API_URL")"
