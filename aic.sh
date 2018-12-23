@@ -70,7 +70,7 @@ ARTWORK_ARTIST="$(echo "$API_RESPONSE" | jq -r '.data[0].artist_display')"
 IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
 
 # Download image from AIC's IIIF server
-curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/80,/0/default.jpg" --output "$IMAGE_PATH"
+curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/400,/0/default.jpg" --output "$IMAGE_PATH"
 
 # We'll need to leave space for outputting artwork info
 # To do so, we need to estimate how many lines the info will take to render
