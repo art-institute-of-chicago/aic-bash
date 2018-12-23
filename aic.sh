@@ -1,10 +1,11 @@
 #!/bin/bash
 
 IMAGE_ID="d02e0079-8e82-733e-683c-cb83a387ee5e"
+IMAGE_PATH="/tmp/default.jpg"
 
-curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/80,/0/default.jpg" --output default.jpg
+curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/80,/0/default.jpg" --output "$IMAGE_PATH"
 
-INPUT="$(jp2a --term-fit --color --html default.jpg)"
+INPUT="$(jp2a --term-fit --color --html "$IMAGE_PATH")"
 
 # Remove HTML tags from beginning and end
 INPUT="${INPUT:449}"
@@ -58,3 +59,6 @@ while IFS=$'\n' read -ra ROWS; do
 done <<< "$INPUT"
 
 printf "$OUTPUT"
+
+# Clean up temporary files
+rm "$IMAGE_PATH"
