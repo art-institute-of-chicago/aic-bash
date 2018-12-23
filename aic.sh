@@ -6,26 +6,35 @@ DIR_QUERIES="$DIR_SCRIPT/queries"
 
 IMAGE_PATH="/tmp/default.jpg"
 
-# Set default option values
-OPT_FILL=
-OPT_JSON="$DIR_QUERIES/default-random-public-domain-oil-painting.json"
-
 # Check what options were passed
 while test $# != 0
 do
     case "$1" in
     -f|--fill) OPT_FILL=--fill ;;
     -j|--json) OPT_JSON=$2; shift ;;
+    -q|--query) OPT_FULLTEXT=$2; shift ;;
     *)  usage ;; # TODO: Define me!
     esac
     shift
 done
 
 API_URL='https://aggregator-data.artic.edu/api/v1/search'
+
+if [ -z "$OPT_JSON" ]; then
+    if [ -z "$OPT_FULLTEXT" ]; then
+        OPT_JSON="$DIR_QUERIES/default-random-public-domain-oil-painting.json"
+    else
+        OPT_JSON="$DIR_QUERIES/default-fulltext.json"
+    fi
+fi
+
 API_QUERY="$(cat "$OPT_JSON")"
 
 # Replace "VAR_NOW" in query with an actual timestamp
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_NOW/$(date +"%T")/g")"
+
+# Replace "VAR_FULLTEXT" in query with the supplied text
+API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_FULLTEXT/$OPT_FULLTEXT/g")"
 
 # Assume that the response contains at least one artwork record
 API_RESPONSE="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" "$API_URL")"
