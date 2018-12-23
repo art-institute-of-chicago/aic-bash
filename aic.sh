@@ -4,7 +4,9 @@
 DIR_SCRIPT="$(dirname "${BASH_SOURCE[0]}")"
 DIR_QUERIES="$DIR_SCRIPT/queries"
 
-IMAGE_PATH="/tmp/default.jpg"
+FILE_IMAGE="/tmp/aic-bash.jpg"
+FILE_RESPONSE="/tmp/aic-bash.json"
+
 OPT_FILL='--fill' # fill by default
 
 # Check what options were passed
@@ -60,7 +62,14 @@ API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_FULLTEXT/$OPT_FULLTEXT/g")"
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_ID/$OPT_ID/g")"
 
 # Assume that the response contains at least one artwork record
-API_RESPONSE="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" "$API_URL")"
+STATUS="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" -w %{http_code} -m 5 "$API_URL" -o "$FILE_RESPONSE")"
+
+if [ ! "$STATUS" = "200" ]; then
+    echo "Sorry, we are having trouble connecting to our API. Try again later!"
+    exit 1
+fi
+
+API_RESPONSE="$(cat "$FILE_RESPONSE")"
 
 # Parse artwork fields using jq
 # https://stedolan.github.io/jq/
@@ -71,7 +80,7 @@ ARTWORK_ARTIST="$(echo "$API_RESPONSE" | jq -r '.data[0].artist_display')"
 IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
 
 # Download image from AIC's IIIF server
-curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/400,/0/default.jpg" --output "$IMAGE_PATH"
+curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/400,/0/default.jpg" --output "$FILE_IMAGE"
 
 # We'll need to leave space for outputting artwork info
 # To do so, we need to estimate how many lines the info will take to render
@@ -110,7 +119,7 @@ OLD_LINES="$(tput lines)"
 export LINES="$(( ${OLD_LINES}-$(linecount "$OUTPUT_TITLE_DATE")-$(linecount "$OUTPUT_ARTIST")-$(linecount "$OUTPUT_URL") ))"
 
 # https://github.com/cslarsen/jp2a
-INPUT="$(jp2a --term-fit --color --html $OPT_FILL "$IMAGE_PATH")"
+INPUT="$(jp2a --term-fit --color --html $OPT_FILL "$FILE_IMAGE")"
 
 # Restore the hacked term variable
 export LINES="$OLD_LINES"
@@ -228,4 +237,5 @@ echo "$OUTPUT_ARTIST"
 echo "$OUTPUT_URL"
 
 # Clean up temporary files
-rm "$IMAGE_PATH"
+rm "$FILE_IMAGE"
+rm "$FILE_RESPONSE"
