@@ -31,6 +31,13 @@ elif [ -z "$OPT_JSON" ]; then
     fi
 fi
 
+# Ensure the JSON file exists
+if [ ! -f "$OPT_JSON" ]; then
+    echo "File not found:" "$(realpath "$OPT_JSON")"
+    exit 1
+fi
+
+# Get our request body from the JSON file
 API_QUERY="$(cat "$OPT_JSON")"
 
 # Replace "VAR_NOW" in query with an actual timestamp
