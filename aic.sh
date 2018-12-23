@@ -6,18 +6,23 @@ DIR_QUERIES="$DIR_SCRIPT/queries"
 
 IMAGE_PATH="/tmp/default.jpg"
 
-# Check what flags were passed
+# Set default option values
+OPT_FILL=
+OPT_JSON="$DIR_QUERIES/default-random-public-domain-oil-painting.json"
+
+# Check what options were passed
 while test $# != 0
 do
     case "$1" in
     -f|--fill) OPT_FILL=--fill ;;
-    *)  usage ;;
+    -j|--json) OPT_JSON=$2; shift ;;
+    *)  usage ;; # TODO: Define me!
     esac
     shift
 done
 
 API_URL='https://aggregator-data.artic.edu/api/v1/search'
-API_QUERY="$(cat "$DIR_QUERIES/default-random-public-domain-oil-painting.json")"
+API_QUERY="$(cat "$OPT_JSON")"
 
 # Replace "VAR_NOW" in query with an actual timestamp
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_NOW/$(date +"%T")/g")"
