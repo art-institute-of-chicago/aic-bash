@@ -27,13 +27,26 @@ API_RESPONSE="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$
 
 # Parse artwork fields using jq
 # https://stedolan.github.io/jq/
+ARTWORK_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].id')"
+ARTWORK_TITLE="$(echo "$API_RESPONSE" | jq -r '.data[0].title')"
+ARTWORK_DATE="$(echo "$API_RESPONSE" | jq -r '.data[0].date_display')"
+ARTWORK_ARTIST="$(echo "$API_RESPONSE" | jq -r '.data[0].artist_display')"
 IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
 
 # Download image from AIC's IIIF server
 curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/80,/0/default.jpg" --output "$IMAGE_PATH"
 
+# We cheat here and modify the built-in variable for terminal height
+# This causes jp2a to underestimate when doing --term-fit
+# We need the extra space to output artwork info
+OLD_LINES="$(tput lines)"
+export LINES="$(( ${OLD_LINES}-4 ))"
+
 # https://github.com/cslarsen/jp2a
 INPUT="$(jp2a --term-fit --color --html $OPT_FILL "$IMAGE_PATH")"
+
+# Restore the hacked term variable
+export LINES="$OLD_LINES"
 
 # Remove HTML tags from beginning and end
 INPUT="${INPUT:449}"
@@ -141,6 +154,16 @@ else
 fi
 
 printf "$OUTPUT"
+
+# https://stackoverflow.com/questions/47050589/create-url-friendly-slug-with-pure-bash
+slugify () {
+    echo "$1" | iconv -t ascii//TRANSLIT | sed -r s/[~\^]+//g | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z
+}
+
+# Output artwork info
+echo "$ARTWORK_TITLE, $ARTWORK_DATE"
+echo "$ARTWORK_ARTIST"
+echo "https://www.artic.edu/artworks/$ARTWORK_ID/$(slugify "$ARTWORK_TITLE")"
 
 # Clean up temporary files
 rm "$IMAGE_PATH"
