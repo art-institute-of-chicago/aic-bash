@@ -31,14 +31,23 @@ elif [ -z "$OPT_JSON" ]; then
     fi
 fi
 
+# Normalize JSON path for validation output
+OPT_JSON="$(realpath "$OPT_JSON")"
+
 # Ensure the JSON file exists
 if [ ! -f "$OPT_JSON" ]; then
-    echo "File not found:" "$(realpath "$OPT_JSON")"
+    echo "File not found: $OPT_JSON"
     exit 1
 fi
 
 # Get our request body from the JSON file
 API_QUERY="$(cat "$OPT_JSON")"
+
+# Ensure the query is valid JSON
+if ! jq -e . 2>&1 >/dev/null <<< "${API_QUERY}"; then
+    echo "File is not valid JSON: $OPT_JSON"
+    exit 1
+fi
 
 # Replace "VAR_NOW" in query with an actual timestamp
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_NOW/$(date +"%T")/g")"
