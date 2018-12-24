@@ -7,29 +7,33 @@ DIR_QUERIES="$DIR_SCRIPT/queries"
 FILE_IMAGE="/tmp/aic-bash.jpg"
 FILE_RESPONSE="/tmp/aic-bash.json"
 
+API_URL='https://aggregator-data.artic.edu/api/v1/search'
+
 OPT_FILL='--fill' # fill by default
 
 # Check what options were passed
-while test $# != 0
-do
+while test $# != 0; do
     case "$1" in
-    -i|--id) OPT_ID=$2; shift ;;
-    -j|--json) OPT_JSON=$2; shift ;;
-    -n|--no-fill) OPT_FILL='' ;;
-    -q|--query) OPT_FULLTEXT=$2; shift ;;
-    *)
-        echo "usage: $(basename $0) [-i id] [-j file] [-n] [-q text]"
-        echo "  -i, --id=N      Retrive specific artwork via numeric id"
-        echo "  -j, --json=...  Path to JSON file containing a query to run"
-        echo "  -n, --no-fill   Disable background color fill"
-        echo "  -q, --query=... Full-text search string"
-        exit 1
-    ;;
+        -i|--id) OPT_ID=$2; shift 2 ;;
+        -j|--json) OPT_JSON=$2; shift 2 ;;
+        -n|--no-fill) OPT_FILL=''; shift ;;
+        -*)
+            echo "usage: $(basename $0) [-i id] [-j file] [-n] [query]"
+            echo "  -i, --id=N      Retrive specific artwork via numeric id"
+            echo "  -j, --json=...  Path to JSON file containing a query to run"
+            echo "  -n, --no-fill   Disable background color fill"
+            echo "  [query]         (Optional) Full-text search string"
+            exit 1
+        ;;
+        *) break ;;
     esac
-    shift
 done
 
-API_URL='https://aggregator-data.artic.edu/api/v1/search'
+# Check if the positional argument for full-text was passed
+if [ ! -z "$1" ]; then
+    OPT_FULLTEXT=$1
+    shift
+fi
 
 if [ ! -z "$OPT_ID" ]; then
     OPT_JSON="$DIR_QUERIES/default-id.json"
