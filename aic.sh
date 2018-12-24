@@ -130,14 +130,6 @@ ARTWORK_DATE="$(echo "$API_RESPONSE" | jq -r '.data[0].date_display')"
 ARTWORK_ARTIST="$(echo "$API_RESPONSE" | jq -r '.data[0].artist_display')"
 IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
 
-# Download image from AIC's IIIF server
-STATUS="$(curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/$OPT_SIZE,/0/default.jpg" -w %{http_code} -m 5 --output "$FILE_IMAGE")"
-
-if [ ! "$STATUS" = "200" ]; then
-    echo "Sorry, we are having trouble downloading the image. Try again later!" >&2
-    exit 1
-fi
-
 # We'll need to leave space for outputting artwork info
 # To do so, we need to estimate how many lines the info will take to render
 function linecount() {
@@ -168,11 +160,27 @@ slugify () {
 OUTPUT_TITLE_DATE="$ARTWORK_TITLE, $ARTWORK_DATE"
 OUTPUT_ARTIST="$ARTWORK_ARTIST"
 OUTPUT_URL="https://www.artic.edu/artworks/$ARTWORK_ID/$(slugify "$ARTWORK_TITLE")"
+OUTPUT_TOMBSTONE="$OUTPUT_TITLE_DATE"$'\n'"$OUTPUT_ARTIST"$'\n'"$OUTPUT_URL"
+
+# Now that the tombstone is ready, abort early if there's no image
+if [ "$IMAGE_ID" = "null" ]; then
+    echo -e "\033[0;31mUnfortunately, this artwork has no preferred image.\033[0m" >&2
+    echo "$OUTPUT_TOMBSTONE"
+    exit 1
+fi
+
+# Download image from AIC's IIIF server
+STATUS="$(curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/$OPT_SIZE,/0/default.jpg" -w %{http_code} -m 5 --output "$FILE_IMAGE")"
+
+if [ ! "$STATUS" = "200" ]; then
+    echo "Sorry, we are having trouble downloading the image. Try again later!" >&2
+    exit 1
+fi
 
 # We cheat here and modify the built-in variable for terminal height
 # This causes jp2a to underestimate when doing --term-fit
 OLD_LINES="$(tput lines)"
-export LINES="$(( ${OLD_LINES}-$(linecount "$OUTPUT_TITLE_DATE")-$(linecount "$OUTPUT_ARTIST")-$(linecount "$OUTPUT_URL") ))"
+export LINES="$(( ${OLD_LINES}-$(linecount "$OUTPUT_TOMBSTONE") ))"
 
 # https://github.com/cslarsen/jp2a
 INPUT="$(jp2a --term-fit --color --html $OPT_FILL "$FILE_IMAGE")"
@@ -288,9 +296,7 @@ fi
 printf "$OUTPUT"
 
 # Output artwork info
-echo "$OUTPUT_TITLE_DATE"
-echo "$OUTPUT_ARTIST"
-echo "$OUTPUT_URL"
+echo "$OUTPUT_TOMBSTONE"
 
 # Clean up temporary files
 rm "$FILE_IMAGE"
