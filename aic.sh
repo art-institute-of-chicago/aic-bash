@@ -14,18 +14,38 @@ OPT_FILL='--fill' # fill by default
 # Check what options were passed
 while test $# != 0; do
     case "$1" in
-        -i|--id) OPT_ID=$2; shift 2 ;;
-        -j|--json) OPT_JSON=$2; shift 2 ;;
-        -n|--no-fill) OPT_FILL=''; shift ;;
+        -i|--id)
+            if [ -z "$2" ] || ! [[ $2 =~ ^[0-9]+$ ]] ; then
+                echo "Please provide a numeric id for the --id option." >&2
+                exit 1
+            fi
+            OPT_ID=$2;
+            shift 2
+        ;;
+        -j|--json)
+            if [ -z "$2" ] || [[ $2 =~ ^- ]] ; then
+                echo "Please provide a path for the --json option." >&2
+                exit 1
+            fi
+            OPT_JSON=$2;
+            shift 2
+        ;;
+        -n|--no-fill)
+            OPT_FILL='';
+            shift
+        ;;
         -*)
             echo "usage: $(basename $0) [-i id] [-j file] [-n] [query]"
-            echo "  -i, --id=N      Retrive specific artwork via numeric id"
-            echo "  -j, --json=...  Path to JSON file containing a query to run"
-            echo "  -n, --no-fill   Disable background color fill"
-            echo "  [query]         (Optional) Full-text search string"
+            echo "  -i, --id <id>      Retrive specific artwork via numeric id"
+            echo "  -j, --json <path>  Path to JSON file containing a query to run"
+            echo "  -n, --no-fill      Disable background color fill"
+            echo "  [query]            (Optional) Full-text search string"
             exit 1
         ;;
-        *) break ;;
+        *)
+            # This allows positional arguments (i.e. full-text search) to work
+            break
+        ;;
     esac
 done
 
@@ -50,7 +70,7 @@ OPT_JSON="$(realpath "$OPT_JSON")"
 
 # Ensure the JSON file exists
 if [ ! -f "$OPT_JSON" ]; then
-    echo "File not found: $OPT_JSON"
+    echo "JSON file not found: $OPT_JSON" >&2
     exit 1
 fi
 
@@ -59,7 +79,7 @@ API_QUERY="$(cat "$OPT_JSON")"
 
 # Ensure the query is valid JSON
 if ! jq -e . 2>&1 >/dev/null <<< "${API_QUERY}"; then
-    echo "File is not valid JSON: $OPT_JSON"
+    echo "File is not valid JSON: $OPT_JSON" >&2
     exit 1
 fi
 
@@ -76,7 +96,7 @@ API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_ID/$OPT_ID/g")"
 STATUS="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" -w %{http_code} -m 5 "$API_URL" -o "$FILE_RESPONSE")"
 
 if [ ! "$STATUS" = "200" ]; then
-    echo "Sorry, we are having trouble connecting to our API. Try again later!"
+    echo "Sorry, we are having trouble connecting to our API. Try again later!" >&2
     exit 1
 fi
 
@@ -94,7 +114,7 @@ IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
 STATUS="$(curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/400,/0/default.jpg" -w %{http_code} -m 5 --output "$FILE_IMAGE")"
 
 if [ ! "$STATUS" = "200" ]; then
-    echo "Sorry, we are having trouble downloading the image. Try again later!"
+    echo "Sorry, we are having trouble downloading the image. Try again later!" >&2
     exit 1
 fi
 
