@@ -17,7 +17,14 @@ do
     -j|--json) OPT_JSON=$2; shift ;;
     -n|--no-fill) OPT_FILL='' ;;
     -q|--query) OPT_FULLTEXT=$2; shift ;;
-    *)  usage ;; # TODO: Define me!
+    *)
+        echo "usage: $(basename $0) [-i id] [-j file] [-n] [-q text]"
+        echo "  -i, --id=N      Retrive specific artwork via numeric id"
+        echo "  -j, --json=...  Path to JSON file containing a query to run"
+        echo "  -n, --no-fill   Disable background color fill"
+        echo "  -q, --query=... Full-text search string"
+        exit 1
+    ;;
     esac
     shift
 done
