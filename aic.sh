@@ -122,6 +122,12 @@ fi
 
 API_RESPONSE="$(cat "$FILE_RESPONSE")"
 
+# Exit early if there's no results
+if [ "$(echo "$API_RESPONSE" | jq -r '.data | length')" = '0' ]; then
+    echo "Sorry, we couldn't find any results matching your criteria." >&2
+    exit 1
+fi
+
 # Parse artwork fields using jq
 # https://stedolan.github.io/jq/
 ARTWORK_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].id')"
