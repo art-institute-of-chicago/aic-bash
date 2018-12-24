@@ -8,5 +8,10 @@
         "image_id"
     ],
     "limit": 1,
-    "q": "VAR_FULLTEXT"
+    "q": "VAR_FULLTEXT",
+    "query": {
+        "exists": {
+            "field": "image_id"
+        }
+    }
 }
