@@ -9,7 +9,8 @@ FILE_RESPONSE="/tmp/aic-bash.json"
 
 API_URL='https://aggregator-data.artic.edu/api/v1/search'
 
-OPT_FILL='--fill' # fill by default
+OPT_FILL='--fill' # fill background by default
+OPT_SIZE='843' # default for artwork detail pages
 
 # Check what options were passed
 while test $# != 0; do
@@ -34,12 +35,31 @@ while test $# != 0; do
             OPT_FILL='';
             shift
         ;;
+        -q|--quality)
+            if [ "$2" = 'h' ] || [ "$2" = 'high' ] ; then
+                OPT_SIZE='843'
+            elif [ "$2" = 'm' ] || [ "$2" = 'medium' ] ; then
+                OPT_SIZE='400'
+            elif [ "$2" = 'l' ] || [ "$2" = 'low' ] ; then
+                OPT_SIZE='200'
+            else
+                echo "Please provide a valid value for the --quality option:" >&2
+                echo "  h, m, l, high, medium, low" >&2
+                exit 1
+            fi
+            shift 2
+        ;;
         -*)
             echo "usage: $(basename $0) [-i id] [-j file] [-n] [query]"
-            echo "  -i, --id <id>      Retrive specific artwork via numeric id"
-            echo "  -j, --json <path>  Path to JSON file containing a query to run"
-            echo "  -n, --no-fill      Disable background color fill"
-            echo "  [query]            (Optional) Full-text search string"
+            echo "  -i, --id <id>         Retrive specific artwork via numeric id."
+            echo "  -j, --json <path>     Path to JSON file containing a query to run."
+            echo "  -n, --no-fill         Disable background color fill."
+            echo "  -q, --quality <enum>  Affects width of image retrieved from server."
+            echo "                        Reduces color artifacts. Valid options:"
+            echo "                          h, high   = 843x (default)"
+            echo "                          m, medium = 400x"
+            echo "                          l, low    = 200x"
+            echo "  [query]               (Optional) Full-text search string."
             exit 1
         ;;
         *)
@@ -111,7 +131,7 @@ ARTWORK_ARTIST="$(echo "$API_RESPONSE" | jq -r '.data[0].artist_display')"
 IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
 
 # Download image from AIC's IIIF server
-STATUS="$(curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/400,/0/default.jpg" -w %{http_code} -m 5 --output "$FILE_IMAGE")"
+STATUS="$(curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/$OPT_SIZE,/0/default.jpg" -w %{http_code} -m 5 --output "$FILE_IMAGE")"
 
 if [ ! "$STATUS" = "200" ]; then
     echo "Sorry, we are having trouble downloading the image. Try again later!" >&2
