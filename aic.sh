@@ -168,8 +168,9 @@ function linecount() {
 
 # Not the same algorithm as on the website, but accurate enough for simpler titles
 # https://stackoverflow.com/questions/47050589/create-url-friendly-slug-with-pure-bash
+# https://unix.stackexchange.com/questions/13711/differences-between-sed-on-mac-osx-and-other-standard-sed
 slugify () {
-    echo "$1" | iconv -c -t ascii//TRANSLIT | sed -r s/[~\^]+//g | sed -r s/[^a-zA-Z0-9]+/-/g | sed -r s/^-+\|-+$//g | tr A-Z a-z
+    echo "$1" | iconv -c -t ascii//TRANSLIT | sed -E s/[~\^]+//g | sed -E s/[^a-zA-Z0-9]+/-/g | sed -E s/^-+\|-+$//g | tr A-Z a-z
 }
 
 # Build output lines so we can measure them, mirroring website conventions
@@ -228,7 +229,7 @@ if [ ! "$OPT_FILL" = '--fill' ]; then
         for ROW in "${ROWS[@]}"; do
 
             # Transform spans into space-separated quadruples of R G B [Char], using pipes as span-separators
-            ROW="$(echo "$ROW" | sed -re "s/<span style='color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2});'>(.)<\/span>/\1 \2 \3 \4|/g")"
+            ROW="$(echo "$ROW" | sed -E "s/<span style='color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2});'>(.)<\/span>/\1 \2 \3 \4|/g")"
 
             # Discard the last pipe
             ROW="${ROW::-1}"
@@ -267,7 +268,7 @@ else
         for ROW in "${ROWS[@]}"; do
 
             # Transform spans into space-separated quadruples of R G B [Char], using pipes as span-separators
-            ROW="$(echo "$ROW" | sed -re "s/<span style='color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2}); background-color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2});'>(.)<\/span>/\1 \2 \3 \4 \5 \6 \7|/g")"
+            ROW="$(echo "$ROW" | sed -E "s/<span style='color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2}); background-color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2});'>(.)<\/span>/\1 \2 \3 \4 \5 \6 \7|/g")"
 
             # Discard the last pipe
             ROW="${ROW::-1}"
