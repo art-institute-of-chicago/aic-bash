@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if ! [ -x "$(command -v jq)" ]; then
+  echo 'Please install jq: https://stedolan.github.io/jq/' >&2
+  exit 1
+fi
+
 # https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 DIR_SCRIPT="$(dirname "${BASH_SOURCE[0]}")"
 DIR_QUERIES="$DIR_SCRIPT/queries"
