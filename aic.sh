@@ -376,10 +376,10 @@ INPUT="${INPUT::${#INPUT}-5}" # <br/>
 
 # Replace &nbsp; with a placeholder character that's not in the character map
 # https://github.com/cslarsen/jp2a/blob/61d205f6959d88e0cc8d8879fe7d66eb0932ecca/src/options.c#L69
-INPUT="${INPUT//&nbsp;/$SPH}"
+INPUT="$(echo "$INPUT" | sed "s/&nbsp;/$SPH/g")"
 
 # Replace <br/> with actual newlines
-INPUT="${INPUT//<br\/>/$'\n'}"
+INPUT="$(echo "$INPUT" | sed $'s/<br\/>/\\\n/g')"
 
 # Start building our output for rendering
 OUTPUT=''
@@ -411,7 +411,7 @@ if [ ! "$OPT_FILL" = '--fill' ]; then
                     B="$(( 16#${COL[2]} ))"
 
                     # Get character and fix spaces
-                    C="${COL[3]//$SPH/ }"
+                    C="$(echo "${COL[3]}" | sed "s/$SPH/ /")"
 
                     #  https://gist.github.com/XVilka/8346728
                     OUTPUT+="\033[38;2;${R};${G};${B}m${C}"
@@ -458,7 +458,7 @@ else
                     B="$(( 16#${COL[2]} ))"
 
                     # Get character and fix spaces
-                    C="${COL[6]//$SPH/ }"
+                    C="$(echo "${COL[6]}" | sed "s/$SPH/ /")"
 
                     # https://gist.github.com/XVilka/8346728
                     OUTPUT+="\033[38;2;${R};${G};${B}m${C}"
