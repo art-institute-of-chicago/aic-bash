@@ -1,0 +1,29 @@
+{
+    "resources": "artworks",
+    "fields": [
+        "id",
+        "title",
+        "artist_display",
+        "date_display",
+        "image_id"
+    ],
+    "limit": 1,
+    "q": "VAR_FULLTEXT",
+    "query": {
+        "bool": {
+            "must": [
+                {
+                    "term": {
+                        "subject_titles.keyword": "landscapes"
+                    }
+                },
+                {
+                    "exists": {
+                        "field": "image_id"
+                    }
+                }
+            ]
+        }
+
+    }
+}
