@@ -12,6 +12,7 @@ Just a small side-project we did to show what could be done with our API.
 
  * A terminal with [truecolor (24bit) support](https://gist.github.com/XVilka/8346728)
  * [Bash v4.2](https://www.tldp.org/LDP/abs/html/bashver4.html#AEN21220) (Feb. 2011) or higher
+ * [coreutils](https://www.gnu.org/software/coreutils/) (for [realpath](https://unix.stackexchange.com/questions/101080/realpath-command-not-found))
  * [jq](https://stedolan.github.io/jq/)
  * [jp2a](https://csl.name/jp2a/)
 
@@ -32,10 +33,10 @@ Lastly, **jq** and **jp2a** must be reachable via `$PATH`. You can install them 
 
 ```bash
 # macOS with Homebrew
-brew install jq jp2a
+brew install jq jp2a coreutils
 
 # Ubuntu with APT
-sudo apt-get install jq jp2a
+sudo apt-get install jq jp2a coreutils
 ```
 
 
