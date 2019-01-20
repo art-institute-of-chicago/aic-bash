@@ -22,6 +22,9 @@ API_URL='https://aggregator-data.artic.edu/api/v1/search'
 OPT_FILL='--fill' # fill background by default
 OPT_SIZE='843' # default for artwork detail pages
 
+OPT_LIMIT='1' # retrieve one result by default
+MAX_LIMIT='100' # hard cap on --limit for serverside performance
+
 # Check what options were passed
 while test $# != 0; do
     case "$1" in
@@ -39,6 +42,22 @@ while test $# != 0; do
                 exit 1
             fi
             OPT_JSON=$2;
+            shift 2
+        ;;
+        -l|--limit)
+            if [ -z "$2" ] || ! [[ $2 =~ ^[0-9]+$ ]] ; then
+                echo "Please provide a number for the --limit option." >&2
+                exit 1
+            fi
+            if [ "$2" -gt $MAX_LIMIT ] ; then
+                echo "Please keep --limit under $MAX_LIMIT." >&2
+                exit 1
+            fi
+            if [ "$2" -lt 1 ] ; then
+                echo "Please set --limit to at least 1." >&2
+                exit 1
+            fi
+            OPT_LIMIT=$2;
             shift 2
         ;;
         -n|--no-fill)
@@ -63,6 +82,8 @@ while test $# != 0; do
             echo "usage: $(basename $0) [-i id] [-j file] [-n] [query]"
             echo "  -i, --id <id>         Retrive specific artwork via numeric id."
             echo "  -j, --json <path>     Path to JSON file containing a query to run."
+            echo "  -l, --limit <num>     How many artworks to retrieve. Defaults to 1."
+            echo "                        One random artwork from results will be shown."
             echo "  -n, --no-fill         Disable background color fill."
             echo "  -q, --quality <enum>  Affects width of image retrieved from server."
             echo "                        Reduces color artifacts. Valid options:"
@@ -122,6 +143,9 @@ API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_FULLTEXT/$OPT_FULLTEXT/g")"
 # Replace "VAR_ID" in query with the --id parameter
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_ID/$OPT_ID/g")"
 
+# Replace "VAR_LIMIT" in query with the --limit parameter
+API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_LIMIT/$OPT_LIMIT/g")"
+
 # Assume that the response contains at least one artwork record
 STATUS="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" -w %{http_code} -m 5 "$API_URL" -o "$FILE_RESPONSE")"
 
@@ -131,20 +155,24 @@ if [ ! "$STATUS" = "200" ]; then
 fi
 
 API_RESPONSE="$(cat "$FILE_RESPONSE")"
+API_COUNT="$(echo "$API_RESPONSE" | jq -r '.data | length')"
 
 # Exit early if there's no results
-if [ "$(echo "$API_RESPONSE" | jq -r '.data | length')" = '0' ]; then
+if [ "$API_COUNT" = '0' ]; then
     echo "Sorry, we couldn't find any results matching your criteria." >&2
     exit 1
 fi
 
+# Select random artwork from results
+API_INDEX=$(( RANDOM % $API_COUNT ))
+
 # Parse artwork fields using jq
 # https://stedolan.github.io/jq/
-ARTWORK_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].id')"
-ARTWORK_TITLE="$(echo "$API_RESPONSE" | jq -r '.data[0].title')"
-ARTWORK_DATE="$(echo "$API_RESPONSE" | jq -r '.data[0].date_display')"
-ARTWORK_ARTIST="$(echo "$API_RESPONSE" | jq -r '.data[0].artist_display')"
-IMAGE_ID="$(echo "$API_RESPONSE" | jq -r '.data[0].image_id')"
+ARTWORK_ID="$(echo "$API_RESPONSE" | jq -r ".data[$API_INDEX].id")"
+ARTWORK_TITLE="$(echo "$API_RESPONSE" | jq -r ".data[$API_INDEX].title")"
+ARTWORK_DATE="$(echo "$API_RESPONSE" | jq -r ".data[$API_INDEX].date_display")"
+ARTWORK_ARTIST="$(echo "$API_RESPONSE" | jq -r ".data[$API_INDEX].artist_display")"
+IMAGE_ID="$(echo "$API_RESPONSE" | jq -r ".data[$API_INDEX].image_id")"
 
 # We'll need to leave space for outputting artwork info
 # To do so, we need to estimate how many lines the info will take to render

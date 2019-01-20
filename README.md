@@ -72,6 +72,8 @@ $ ./aic.sh -h
 usage: aic.sh [-i id] [-j file] [-n] [query]
   -i, --id <id>         Retrive specific artwork via numeric id.
   -j, --json <path>     Path to JSON file containing a query to run.
+  -l, --limit <num>     How many artworks to retrieve. Defaults to 1.
+                        One random artwork from results will be shown.
   -n, --no-fill         Disable background color fill.
   -q, --quality <enum>  Affects width of image retrieved from server.
                         Reduces color artifacts. Valid options:
@@ -100,6 +102,9 @@ usage: aic.sh [-i id] [-j file] [-n] [query]
 
     # Be sure to use quotes when searching for phrases!
     ./aic.sh "american gothic"
+
+    # With --limit, show a random artwork from the top <num> results
+    ./aic.sh --limit 10 "mountains"
     ```
 
  4. Running it with `-j` or `--json` will query our API using a query stored in the specified JSON file:
@@ -115,8 +120,9 @@ Under the hood, all of its queries are stored as JSON files in the `./queries` d
 We treat JSON files as query templates. Before executing a JSON query, we replace the following text:
 
  * `VAR_FULLTEXT` is replaced by whatever is specified in the `[query]` argument
- * `VAR_NOW` is replaced with the current Unix timestamp
+ * `VAR_LIMIT` is replaced by the value of the `--limit` option
  * `VAR_ID` is replaced by the value of the `--id` option
+ * `VAR_NOW` is replaced with the current Unix timestamp
 
 So if the query supports it, you can combine `--json` with full-text search:
 
@@ -126,3 +132,16 @@ So if the query supports it, you can combine `--json` with full-text search:
 ```
 
 If you'd like to write custom queries for use with `--json`, feel free to store them in the `queries` directory. Any file there that doesn't begin with `default-*` will be ignored by version control.
+
+Lastly, `--limit <num>` provides a way to randomize search, assuming that the query in question uses `VAR_LIMIT`.
+
+Here, "limit" indicates how many results should be returned on each page from the API. We show a random result from the first page. By default, limit is set to `1`, so the top result will always be shown. Specifying a greater limit means that we will select a random artwork from the top `<num>` results from the API. For performance, limit is capped at 100.
+
+Limit is meant to work primarily in conjunction with full-text search. For example:
+
+```bash
+# Show a random artwork from the top 50 results for "paperweight"
+./aic.sh --limit 50 "paperweight"
+```
+
+If you are writing your own queries, and you'd like to select a random artwork from a category, consider avoiding the use of `VAR_LIMIT`. Instead, use [term](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html) queries with [function_score](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html). See [queries/default-random-landscape.json](queries/default-random-landscape.json) for an example.

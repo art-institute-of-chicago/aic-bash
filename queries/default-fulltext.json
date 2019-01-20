@@ -7,7 +7,7 @@
         "date_display",
         "image_id"
     ],
-    "limit": 1,
+    "limit": "VAR_LIMIT",
     "q": "VAR_FULLTEXT",
     "query": {
         "exists": {
