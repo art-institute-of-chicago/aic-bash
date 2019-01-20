@@ -78,6 +78,14 @@ while test $# != 0; do
             fi
             shift 2
         ;;
+        -s|--seed)
+            if [ -z "$2" ] || [[ $2 =~ ^- ]] ; then
+                echo "Please provide a value for the --seed option." >&2
+                exit 1
+            fi
+            OPT_SEED=$2;
+            shift 2
+        ;;
         -*)
             echo "usage: $(basename $0) [-i id] [-j file] [-n] [query]"
             echo "  -i, --id <id>         Retrive specific artwork via numeric id."
@@ -90,6 +98,7 @@ while test $# != 0; do
             echo "                          h, high   = 843x (default)"
             echo "                          m, medium = 400x"
             echo "                          l, low    = 200x"
+            echo "  -s, --seed <val>      For random queries. Defaults to timestamp."
             echo "  [query]               (Optional) Full-text search string."
             exit 1
         ;;
@@ -143,9 +152,12 @@ function checkjson() {
     fi
 }
 
-# Replace "VAR_NOW" in query with an actual timestamp
-# No validation needed, since this is just a randomness helper
-API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_NOW/$(date +"%T")/g")"
+# Replace "VAR_SEED" in query with the --seed parameter
+checkjson "$OPT_SEED" 'VAR_SEED' 'Seed'
+if [ -z "$OPT_SEED" ]; then
+    OPT_SEED="$(date +"%T")" # use current timestamp by default
+fi
+API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_SEED/$OPT_SEED/g")"
 
 # Replace "VAR_FULLTEXT" in query with the supplied text
 checkjson "$OPT_FULLTEXT" 'VAR_FULLTEXT' 'Full-text query'

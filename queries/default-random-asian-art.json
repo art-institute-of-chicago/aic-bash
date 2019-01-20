@@ -29,7 +29,7 @@
             },
             "random_score": {
                 "field": "id",
-                "seed": "VAR_NOW"
+                "seed": "VAR_SEED"
             }
         }
     }

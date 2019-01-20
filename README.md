@@ -80,6 +80,7 @@ usage: aic.sh [-i id] [-j file] [-n] [query]
                           h, high   = 843x (default)
                           m, medium = 400x
                           l, low    = 200x
+  -s, --seed <val>      For random queries. Defaults to timestamp.
   [query]               (Optional) Full-text search string.
 ```
 
@@ -120,9 +121,9 @@ Under the hood, all of its queries are stored as JSON files in the `./queries` d
 We treat JSON files as query templates. Before executing a JSON query, we replace the following text:
 
  * `VAR_FULLTEXT` is replaced by whatever is specified in the `[query]` argument
+ * `VAR_SEED` is replaced by the value of the `--seed` option or the current Unix timestamp
  * `VAR_LIMIT` is replaced by the value of the `--limit` option
  * `VAR_ID` is replaced by the value of the `--id` option
- * `VAR_NOW` is replaced with the current Unix timestamp
 
 So if the query supports it, you can combine `--json` with full-text search:
 
