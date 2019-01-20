@@ -157,7 +157,9 @@ API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_ID/$OPT_ID/g")"
 
 # Replace "VAR_LIMIT" in query with the --limit parameter
 checkjson "$OPT_LIMIT" 'VAR_LIMIT' 'Limit'
-OPT_LIMIT='1' # retrieve one result by default
+if [ -z "$OPT_LIMIT" ]; then
+    OPT_LIMIT='1' # retrieve one result by default
+fi
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_LIMIT/$OPT_LIMIT/g")"
 
 # Assume that the response contains at least one artwork record
