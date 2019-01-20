@@ -22,7 +22,7 @@ API_URL='https://aggregator-data.artic.edu/api/v1/search'
 OPT_FILL='--fill' # fill background by default
 OPT_SIZE='843' # default for artwork detail pages
 
-OPT_LIMIT='1' # retrieve one result by default
+# we define default OPT_LIMIT later, so that we can validate options
 MAX_LIMIT='100' # hard cap on --limit for serverside performance
 
 # Check what options were passed
@@ -134,16 +134,30 @@ if ! jq -e . 2>&1 >/dev/null <<< "${API_QUERY}"; then
     exit 1
 fi
 
+# Function to validate that JSON file has placeholders to support options
+function checkjson() {
+    if [ ! -z "$1" ] && [[ $API_QUERY != *"$2"* ]]; then
+        echo "$3 was passed, but JSON file is missing '$2' placeholder:" >&2
+        echo "  $OPT_JSON" >&2
+        exit 1
+    fi
+}
+
 # Replace "VAR_NOW" in query with an actual timestamp
+# No validation needed, since this is just a randomness helper
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_NOW/$(date +"%T")/g")"
 
 # Replace "VAR_FULLTEXT" in query with the supplied text
+checkjson "$OPT_FULLTEXT" 'VAR_FULLTEXT' 'Full-text query'
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_FULLTEXT/$OPT_FULLTEXT/g")"
 
 # Replace "VAR_ID" in query with the --id parameter
+checkjson "$OPT_ID" 'VAR_ID' 'Identifier'
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_ID/$OPT_ID/g")"
 
 # Replace "VAR_LIMIT" in query with the --limit parameter
+checkjson "$OPT_LIMIT" 'VAR_LIMIT' 'Limit'
+OPT_LIMIT='1' # retrieve one result by default
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_LIMIT/$OPT_LIMIT/g")"
 
 # Assume that the response contains at least one artwork record
