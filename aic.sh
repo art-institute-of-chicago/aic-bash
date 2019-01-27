@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 if ! [ -x "$(command -v jq)" ]; then
-  echo 'Please install jq: https://stedolan.github.io/jq/' >&2
-  exit 1
+    echo 'Please install jq: https://stedolan.github.io/jq/' >&2
+    exit 1
 fi
 
 if ! [ -x "$(command -v jp2a)" ]; then
-  echo 'Please install jp2a: https://csl.name/jp2a/' >&2
-  exit 1
+    echo 'Please install jp2a: https://csl.name/jp2a/' >&2
+    exit 1
 fi
 
 # https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
