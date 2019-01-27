@@ -10,6 +10,15 @@ if ! [ -x "$(command -v jp2a)" ]; then
     exit 1
 fi
 
+if [ -x "$(command -v md5sum)" ]; then
+    BIN_MD5='md5sum'
+elif [ -x "$(command -v gmd5sum)" ]; then
+    BIN_MD5='gmd5sum'
+else
+    echo 'Please install md5sum: https://linux.die.net/man/1/md5sum' >&2
+    exit 1
+fi
+
 # https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 DIR_SCRIPT="$(dirname "${BASH_SOURCE[0]}")"
 DIR_QUERIES="$DIR_SCRIPT/queries"
@@ -198,7 +207,7 @@ fi
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_LIMIT/$OPT_LIMIT/g")"
 
 # Generate cache filename by hashing the query
-FILE_CACHE="$DIR_CACHES/$(echo -n "$API_QUERY" | md5sum | awk '{print $1}').txt"
+FILE_CACHE="$DIR_CACHES/$(echo -n "$API_QUERY" | $BIN_MD5 | awk '{print $1}').txt"
 
 # Determine if the cache file needs to be deleted
 if [ -f "$FILE_CACHE" ]; then
