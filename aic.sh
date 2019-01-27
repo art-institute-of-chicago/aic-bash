@@ -30,7 +30,7 @@ MAX_LIMIT='100' # hard cap on --limit for serverside performance
 for FILE_CACHE in "$DIR_CACHES"/*.txt; do
     [ -e "$FILE_CACHE" ] || continue
     CACHE_MAXAGE="$(jq -r '.maxage' "$FILE_CACHE")"
-    CACHE_AGE="$(( $(date +"%s") - $(stat -c "%Y" "$FILE_CACHE") ))"
+    CACHE_AGE="$(( $(date '+%s') - $(date -r "$FILE_CACHE" '+%s') ))"
     if [ $CACHE_AGE -gt $CACHE_MAXAGE ]; then
         rm "$FILE_CACHE"
     fi
@@ -207,7 +207,7 @@ if [ -f "$FILE_CACHE" ]; then
         rm "$FILE_CACHE"
     else
         # Delete cache file if it is older than the passed cache time
-        CACHE_AGE="$(( $(date +"%s") - $(stat -c "%Y" "$FILE_CACHE") ))"
+        CACHE_AGE="$(( $(date '+%s') - $(date -r "$FILE_CACHE" '+%s') ))"
         if [ $CACHE_AGE -gt $OPT_CACHE ]; then
             rm "$FILE_CACHE"
         fi
@@ -233,7 +233,7 @@ if [ -f "$FILE_CACHE" ]; then
     # Update maxage in cache file to match cache option, but preserve its modified time
     CACHE_MAXAGE="$(echo "$API_CACHE" | jq -r '.maxage')"
     if [ $CACHE_MAXAGE -ne $OPT_CACHE ]; then
-        savecache "$API_RESPONSE" "$(stat -c %y "$FILE_CACHE")"
+        savecache "$API_RESPONSE" "$(date -r "$FILE_CACHE" --rfc-3339 ns)"
     fi
 
 else
