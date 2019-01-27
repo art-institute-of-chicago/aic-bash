@@ -10,7 +10,7 @@ Just a small side-project we did to show what could be done with our API.
 
 ## Requirements
 
- * A terminal with [truecolor (24bit) support](https://gist.github.com/XVilka/8346728)
+ * A terminal with [truecolor (24bit) support](https://gist.github.com/XVilka/8346728) (recommendations below)
  * [Bash v4.2](https://www.tldp.org/LDP/abs/html/bashver4.html#AEN21220) (Feb. 2011) or higher
  * [coreutils](https://www.gnu.org/software/coreutils/) (for [realpath](https://unix.stackexchange.com/questions/101080/realpath-command-not-found))
  * [jq](https://stedolan.github.io/jq/)
@@ -69,7 +69,10 @@ Adjust `quality` to reduce color artifacts or improve performance.
 
 ```bash
 $ ./aic.sh -h
-usage: aic.sh [-i id] [-j file] [-n] [query]
+usage: aic.sh [options] [query]
+  -c, --cache [num]     Cache results of this query for [num] seconds.
+                        [num] defaults to 1 hour (3600 sec) if blank.
+                        Use cached results if available.
   -i, --id <id>         Retrive specific artwork via numeric id.
   -j, --json <path>     Path to JSON file containing a query to run.
   -l, --limit <num>     How many artworks to retrieve. Defaults to 1.
@@ -132,11 +135,13 @@ So if the query supports it, you can combine `--json` with full-text search:
 ./aic.sh --json "queries/default-fulltext-landscape.json" "holland"
 ```
 
-If you'd like to write custom queries for use with `--json`, feel free to store them in the `queries` directory. Any file there that doesn't begin with `default-*` will be ignored by version control.
+If you want to write custom queries for use with `--json`, feel free to store them in the `./queries` directory.
 
-Lastly, `--limit <num>` provides a way to randomize search, assuming that the query in question uses `VAR_LIMIT`.
+Any file in `./queries` that doesn't begin with `default-*` will be ignored by version control.
 
-Here, "limit" indicates how many results should be returned on each page from the API. We show a random result from the first page. By default, limit is set to `1`, so the top result will always be shown. Specifying a greater limit means that we will select a random artwork from the top `<num>` results from the API. For performance, limit is capped at 100.
+The `--limit <num>` option provides a way to randomize search, assuming that the query in question uses `VAR_LIMIT`.
+
+Here, "limit" indicates how many results should be returned on each page from the API. Internally, we show a random result from the first page. By default, limit is set to `1`, so the top result will always be shown. Specifying a greater limit means that we will select a random artwork from the top `<num>` results from the API. For performance, limit is capped at 100.
 
 Limit is meant to work primarily in conjunction with full-text search. For example:
 
@@ -145,4 +150,16 @@ Limit is meant to work primarily in conjunction with full-text search. For examp
 ./aic.sh --limit 50 "paperweight"
 ```
 
-If you are writing your own queries, and you'd like to select a random artwork from a category, consider avoiding the use of `VAR_LIMIT`. Instead, use [term](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html) queries with [function_score](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html). See [queries/default-random-landscape.json](queries/default-random-landscape.json) for an example.
+If you are writing your own queries, and you'd like to select a random artwork from a category, with no regard to [relevance](https://www.elastic.co/guide/en/elasticsearch/guide/current/relevance-intro.html) or [popularity](https://github.com/art-institute-of-chicago/data-aggregator/blob/3b80579b0840fcbbff589b1b26a2bd6aec5bade0/app/Models/Collections/Artwork.php#L616-L629), consider avoiding the use of `VAR_LIMIT`. Instead, use [term](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html) queries with [function_score](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html) and `"boost": false`. See [queries/default-random-landscape.json](queries/default-random-landscape.json) for an example.
+
+Lastly, `--cache [num]` allows you to cache the API response, so that the script won't have to hit the API each time it runs the same query. This is useful for running full-text search with high limit. For example:
+
+```bash
+# Show a random artwork from the top 100 results for "paperweight"
+# Results will be cached for 1 day (86400 seconds)
+./aic.sh --limit 100 --cache 86400 "paperweight"
+```
+
+After running this query once, it will cache the results. If you run it again within the 24-hour window, it'll show a new random paperweight from the top 100 results without needing to re-query the API.
+
+If you use `--cache` without specifying `[num]`, it'll default to 3600 seconds, i.e. 1 hour.

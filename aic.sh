@@ -13,6 +13,7 @@ fi
 # https://stackoverflow.com/questions/59895/getting-the-source-directory-of-a-bash-script-from-within
 DIR_SCRIPT="$(dirname "${BASH_SOURCE[0]}")"
 DIR_QUERIES="$DIR_SCRIPT/queries"
+DIR_CACHES="$DIR_SCRIPT/caches"
 
 FILE_IMAGE="/tmp/aic-bash.jpg"
 FILE_RESPONSE="/tmp/aic-bash.json"
@@ -25,9 +26,28 @@ OPT_SIZE='843' # default for artwork detail pages
 # we define default OPT_LIMIT later, so that we can validate options
 MAX_LIMIT='100' # hard cap on --limit for serverside performance
 
+# Clear stale cached results
+for FILE_CACHE in "$DIR_CACHES"/*.txt; do
+    [ -e "$FILE_CACHE" ] || continue
+    CACHE_MAXAGE="$(jq -r '.maxage' "$FILE_CACHE")"
+    CACHE_AGE="$(( $(date +"%s") - $(stat -c "%Y" "$FILE_CACHE") ))"
+    if [ $CACHE_AGE -gt $CACHE_MAXAGE ]; then
+        rm "$FILE_CACHE"
+    fi
+done
+
 # Check what options were passed
 while test $# != 0; do
     case "$1" in
+        -c|--cache)
+            if [ ! -z "$2" ] && [[ $2 =~ ^[0-9]+$ ]] ; then
+                OPT_CACHE=$2;
+                shift 2
+            else
+                OPT_CACHE=3600;
+                shift 1
+            fi
+        ;;
         -i|--id)
             if [ -z "$2" ] || ! [[ $2 =~ ^[0-9]+$ ]] ; then
                 echo "Please provide a numeric id for the --id option." >&2
@@ -87,7 +107,10 @@ while test $# != 0; do
             shift 2
         ;;
         -*)
-            echo "usage: $(basename $0) [-i id] [-j file] [-n] [query]"
+            echo "usage: $(basename $0) [options] [query]"
+            echo "  -c, --cache [num]     Cache results of this query for [num] seconds."
+            echo "                        [num] defaults to 1 hour (3600 sec) if blank."
+            echo "                        Use cached results if available."
             echo "  -i, --id <id>         Retrive specific artwork via numeric id."
             echo "  -j, --json <path>     Path to JSON file containing a query to run."
             echo "  -l, --limit <num>     How many artworks to retrieve. Defaults to 1."
@@ -174,21 +197,69 @@ if [ -z "$OPT_LIMIT" ]; then
 fi
 API_QUERY="$(echo "$API_QUERY" | sed "s/VAR_LIMIT/$OPT_LIMIT/g")"
 
-# Assume that the response contains at least one artwork record
-STATUS="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" -w %{http_code} -m 5 "$API_URL" -o "$FILE_RESPONSE")"
+# Generate cache filename by hashing the query
+FILE_CACHE="$DIR_CACHES/$(echo -n "$API_QUERY" | md5sum | awk '{print $1}').txt"
 
-if [ ! "$STATUS" = "200" ]; then
-    echo "Sorry, we are having trouble connecting to our API. Try again later!" >&2
-    exit 1
+# Determine if the cache file needs to be deleted
+if [ -f "$FILE_CACHE" ]; then
+    if [ -z "$OPT_CACHE" ]; then
+        # Delete cache file if the cache option was omitted
+        rm "$FILE_CACHE"
+    else
+        # Delete cache file if it is older than the passed cache time
+        CACHE_AGE="$(( $(date +"%s") - $(stat -c "%Y" "$FILE_CACHE") ))"
+        if [ $CACHE_AGE -gt $OPT_CACHE ]; then
+            rm "$FILE_CACHE"
+        fi
+    fi
 fi
 
-API_RESPONSE="$(cat "$FILE_RESPONSE")"
-API_COUNT="$(echo "$API_RESPONSE" | jq -r '.data | length')"
+# Helper for saving the cache file with (optional) specific modified time
+function savecache() {
+    jq -n --arg maxage "$OPT_CACHE" --argjson response "$1" '{"maxage":$maxage,"response":$response}' > "$FILE_CACHE"
+    if [ ! -z "$2" ]; then
+        touch -d "$2" "$FILE_CACHE"
+    fi
+}
 
-# Exit early if there's no results
-if [ "$API_COUNT" = '0' ]; then
-    echo "Sorry, we couldn't find any results matching your criteria." >&2
-    exit 1
+# If the cache file still exists, use it
+if [ -f "$FILE_CACHE" ]; then
+
+    API_CACHE="$(cat "$FILE_CACHE")"
+
+    API_RESPONSE="$(echo "$API_CACHE" | jq -r '.response')"
+    API_COUNT="$(echo "$API_RESPONSE" | jq -r '.data | length')"
+
+    # Update maxage in cache file to match cache option, but preserve its modified time
+    CACHE_MAXAGE="$(echo "$API_CACHE" | jq -r '.maxage')"
+    if [ $CACHE_MAXAGE -ne $OPT_CACHE ]; then
+        savecache "$API_RESPONSE" "$(stat -c %y "$FILE_CACHE")"
+    fi
+
+else
+
+    # Actually query the API! Ensure that the request succeeded
+    STATUS="$(curl -s -H "Content-Type: application/json; charset=UTF-8" -d "$API_QUERY" -w %{http_code} -m 5 "$API_URL" -o "$FILE_RESPONSE")"
+
+    if [ ! "$STATUS" = "200" ]; then
+        echo "Sorry, we are having trouble connecting to our API. Try again later!" >&2
+        exit 1
+    fi
+
+    API_RESPONSE="$(cat "$FILE_RESPONSE")"
+    API_COUNT="$(echo "$API_RESPONSE" | jq -r '.data | length')"
+
+    # Exit early if there's no results
+    if [ "$API_COUNT" = '0' ]; then
+        echo "Sorry, we couldn't find any results matching your criteria." >&2
+        exit 1
+    fi
+
+    # If the cache option was passed, save response to the cache file
+    if [ ! -z "$OPT_CACHE" ]; then
+        savecache "$API_RESPONSE"
+    fi
+
 fi
 
 # Select random artwork from results
@@ -372,5 +443,10 @@ printf "$OUTPUT"
 echo "$OUTPUT_TOMBSTONE"
 
 # Clean up temporary files
-rm "$FILE_IMAGE"
-rm "$FILE_RESPONSE"
+if [ -f "$FILE_IMAGE" ]; then
+    rm "$FILE_IMAGE"
+fi
+
+if [ -f "$FILE_RESPONSE" ]; then
+    rm "$FILE_RESPONSE"
+fi
