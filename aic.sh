@@ -227,7 +227,7 @@ fi
 function savecache() {
     jq -n --arg maxage "$OPT_CACHE" --argjson response "$1" '{"maxage":$maxage,"response":$response}' > "$FILE_CACHE"
     if [ ! -z "$2" ]; then
-        touch -d "$2" "$FILE_CACHE"
+        touch -t "$2" "$FILE_CACHE"
     fi
 }
 
@@ -242,7 +242,7 @@ if [ -f "$FILE_CACHE" ]; then
     # Update maxage in cache file to match cache option, but preserve its modified time
     CACHE_MAXAGE="$(echo "$API_CACHE" | jq -r '.maxage')"
     if [ $CACHE_MAXAGE -ne $OPT_CACHE ]; then
-        savecache "$API_RESPONSE" "$(date -r "$FILE_CACHE" --rfc-3339 ns)"
+        savecache "$API_RESPONSE" "$(date -r "$FILE_CACHE" +'%Y%m%d%H%M.%S')"
     fi
 
 else
