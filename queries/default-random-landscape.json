@@ -13,7 +13,7 @@
         "function_score": {
             "query": {
                 "bool": {
-                    "must": [
+                    "filter": [
                         {
                             "term": {
                                 "subject_titles.keyword": "landscapes"

@@ -11,7 +11,7 @@
     "q": "VAR_FULLTEXT",
     "query": {
         "bool": {
-            "must": [
+            "filter": [
                 {
                     "term": {
                         "subject_titles.keyword": "landscapes"

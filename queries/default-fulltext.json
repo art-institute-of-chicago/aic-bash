@@ -10,8 +10,12 @@
     "limit": "VAR_LIMIT",
     "q": "VAR_FULLTEXT",
     "query": {
-        "exists": {
-            "field": "image_id"
+        "constant_score": {
+            "filter": {
+                "exists": {
+                    "field": "image_id"
+                }
+            }
         }
     }
 }

@@ -9,8 +9,12 @@
     ],
     "limit": 1,
     "query": {
-        "term": {
-            "id": "VAR_ID"
+        "constant_score": {
+            "filter": {
+                "term": {
+                    "id": "VAR_ID"
+                }
+            }
         }
     }
 }
