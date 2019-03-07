@@ -21,7 +21,7 @@
                         },
                         {
                             "term": {
-                                "term_titles.keyword": "oil paint (paint)"
+                                "material_ids": "TM-2451"
                             }
                         },
                         {

@@ -14,7 +14,7 @@
             "filter": [
                 {
                     "term": {
-                        "subject_titles.keyword": "landscapes"
+                        "subject_ids": "TM-8657"
                     }
                 },
                 {
@@ -24,6 +24,5 @@
                 }
             ]
         }
-
     }
 }

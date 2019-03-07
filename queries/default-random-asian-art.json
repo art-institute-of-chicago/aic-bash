@@ -16,7 +16,7 @@
                     "filter": [
                         {
                             "term": {
-                                "department_title.keyword": "Asian Art"
+                                "department_id": "PC-7"
                             }
                         },
                         {
