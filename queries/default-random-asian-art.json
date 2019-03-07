@@ -27,6 +27,7 @@
                     ]
                 }
             },
+            "boost_mode": "replace",
             "random_score": {
                 "field": "id",
                 "seed": "VAR_SEED"
