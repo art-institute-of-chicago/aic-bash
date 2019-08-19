@@ -163,3 +163,36 @@ Lastly, `--cache [num]` allows you to cache the API response, so that the script
 After running this query once, it will cache the results. If you run it again within the 24-hour window, it'll show a new random paperweight from the top 100 results without needing to re-query the API.
 
 If you use `--cache` without specifying `[num]`, it'll default to 3600 seconds, i.e. 1 hour.
+
+## Contributing
+
+We encourage your contributions. Please fork this repository and make your changes in a separate branch. To better understand how we organize our code, please review our [version control guidelines](https://docs.google.com/document/d/1B-27HBUc6LDYHwvxp3ILUcPTo67VFIGwo5Hiq4J9Jjw).
+
+```bash
+# Clone the repo to your computer
+git clone git@github.com:your-github-account/aic-bash.git
+
+# Enter the folder that was created by the clone
+cd aic-bash
+
+# Start a feature branch
+git checkout -b feature/good-short-description
+
+# ... make some changes, commit your code
+
+# Push your branch to GitHub
+git push origin feature/good-short-description
+```
+
+Then on github.com, create a Pull Request to merge your changes into our
+`develop` branch.
+
+This project is released with a Contributor Code of Conduct. By participating in
+this project you agree to abide by its [terms](CODE_OF_CONDUCT.md).
+
+We welcome bug reports and questions under GitHub's [Issues](issues). For other concerns, you can reach our engineering team at [engineering@artic.edu](mailto:engineering@artic.edu)
+
+## Licensing
+
+This project is licensed under the [GNU Affero General Public License
+Version 3](LICENSE).
