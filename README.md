@@ -10,11 +10,13 @@ Just a small side-project we did to show what could be done with our API.
 
 ## Requirements
 
+Please read this section in its entirety before installing anything. 
+
  * A terminal with [truecolor (24bit) support](https://gist.github.com/XVilka/8346728) (recommendations below)
  * [Bash v4.2](https://www.tldp.org/LDP/abs/html/bashver4.html#AEN21220) (Feb. 2011) or higher
  * [coreutils](https://www.gnu.org/software/coreutils/) (for [realpath](https://unix.stackexchange.com/questions/101080/realpath-command-not-found))
  * [jq](https://stedolan.github.io/jq/)
- * [jp2a](https://csl.name/jp2a/)
+ * [jp2a](https://csl.name/jp2a/) v1.0.6
 
 **Not all terminals support truecolor!** See [TrueColor.md](https://gist.github.com/XVilka/8346728) for more information.
 
@@ -37,6 +39,42 @@ brew install jq jp2a coreutils
 
 # Ubuntu with APT
 sudo apt-get install jq jp2a coreutils
+```
+
+If you see errors such as the following:
+
+```bash
+$ ./aic.sh --id 27992
+./aic.sh: line 428: 16#'cl,''l:'..........; : syntax error: invalid arithmetic operator (error token is "'cl,''l:'..........; ")
+
+$ ./aic.sh --id 28560
+./aic.sh: line 428: 16#,.''ooolxOc.;cooollllcllollllcclllllllloxxdxxdocclollc:cdxxxdlcokxdoolccldddxdddddddll;clcc,c : syntax error: operand expected (error token is ".''ooolxOc.;cooollllcllollllcclllllllloxxdxxdocclollc:cdxxxdlcokxdoolccldddxdddddddll;clcc,c ")
+
+$ ./aic.sh --id 6565
+./aic.sh: line 428: 16#OOOOOOOkOOOOOOOOO0kxxoooddclkOxxxkkkOOOOOOOOkxxxxxxxddddddkOOOOOOOkOOOO: value too great for base (error token is "16#OOOOOOOkOOOOOOOOO0kxxoooddclkOxxxkkkOOOOOOOOkxxxxxxxddddddkOOOOOOOkOOOO")
+```
+
+...you probably have jp2a v1.0.7, which is broken. Check here for more context:
+
+ * https://github.com/cslarsen/jp2a/issues/8
+
+You can confirm this by running `brew info`:
+
+```bash
+$ brew info jp2a
+jp2a: stable 1.0.7 (bottled)
+Convert JPG images to ASCII
+https://csl.name/jp2a/
+/usr/local/Cellar/jp2a/1.0.7 (9 files, 67.7KB) *
+  Poured from bottle on 2019-09-06 at 15:59:33
+From: https://github.com/Homebrew/homebrew-core/blob/master/Formula/jp2a.rb
+```
+
+You can fix this by running the following commands:
+
+```bash
+brew unlink jp2a
+brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/31b5579ccb72ccf24e9d01962e422aece563cff5/Formula/jp2a.rb
 ```
 
 
