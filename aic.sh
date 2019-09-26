@@ -107,6 +107,22 @@ while test $# != 0; do
             fi
             shift 2
         ;;
+        -r|--ratio)
+            if [ -z "$2" ] || ! [[ $2 =~ ^[0-9]+$ ]] ; then
+                echo "Please provide a percentage for the --ratio option." >&2
+                exit 1
+            fi
+            if ! [ "$2" -gt 0 ] ; then
+                echo "Please keep --ratio above 0." >&2
+                exit 1
+            fi
+            if ! [ -x "$(command -v convert)" ]; then
+                echo 'The --ratio option requires ImageMagick: https://imagemagick.org' >&2
+                exit 1
+            fi
+            OPT_RATIO=$2;
+            shift 2
+        ;;
         -s|--seed)
             if [ -z "$2" ] || [[ $2 =~ ^- ]] ; then
                 echo "Please provide a value for the --seed option." >&2
@@ -130,6 +146,9 @@ while test $# != 0; do
             echo "                          h, high   = 843x (default)"
             echo "                          m, medium = 400x"
             echo "                          l, low    = 200x"
+            echo "  -r, --ratio <num>     Stretch the width by this percent of original."
+            echo "                        Useful to compensate for terminal font aspect."
+            echo "                        (iTerm users, try \`120\` for less stretching.)"
             echo "  -s, --seed <val>      For random queries. Defaults to timestamp."
             echo "  [query]               (Optional) Full-text search string."
             exit 1
@@ -328,6 +347,12 @@ STATUS="$(curl -s "https://www.artic.edu/iiif/2/$IMAGE_ID/full/$OPT_SIZE,/0/defa
 if [ ! "$STATUS" = "200" ]; then
     echo "Sorry, we are having trouble downloading the image. Try again later!" >&2
     exit 1
+fi
+
+# If the ratio option was passed, stretch the image width
+# Compensates for differences in monospace font aspect ratios
+if [ ! -z "$OPT_RATIO" ]; then
+    convert "$FILE_IMAGE" -resize "$OPT_RATIO%x100%" "$FILE_IMAGE"
 fi
 
 # We cheat here and modify the built-in variable for terminal height

@@ -100,10 +100,12 @@ You can also run `aic.sh` when you start a new terminal session:
 
 ```bash
 # Add this to your ~/.bashrc or equivalent, then open a new terminal instance
-/path/to/aic-bash/aic.sh --quality medium
+/path/to/aic-bash/aic.sh --quality medium --ratio 120
 ```
 
 Adjust `quality` to reduce color artifacts or improve performance.
+
+The `--ratio 120` is aimed at iTerm users. Although terminal fonts tend to be monospace, not all of them will have the same aspect ratio for each character. We can use `ratio` to stretch or compress the width to compensate for these differences. In this example, `--ratio 120` will stretch the width to 120% of original, which is ideal for iTerm users who use default settings.
 
 
 ## Usage
@@ -124,6 +126,9 @@ usage: aic.sh [options] [query]
                           h, high   = 843x (default)
                           m, medium = 400x
                           l, low    = 200x
+  -r, --ratio <num>     Stretch the width by this percent of original.
+                        Useful to compensate for terminal font aspect.
+                        (iTerm users, try `120` for less stretching.)
   -s, --seed <val>      For random queries. Defaults to timestamp.
   [query]               (Optional) Full-text search string.
 ```
