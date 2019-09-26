@@ -35,13 +35,14 @@ Lastly, **jq** and **jp2a** must be reachable via `$PATH`. You can install them 
 
 ```bash
 # macOS with Homebrew
-brew install jq jp2a coreutils
+brew install jq coreutils
+brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/31b5579ccb72ccf24e9d01962e422aece563cff5/Formula/jp2a.rb
 
 # Ubuntu with APT
 sudo apt-get install jq jp2a coreutils
 ```
 
-If you see errors such as the following:
+On macOS, if you see errors such as the following:
 
 ```bash
 $ ./aic.sh --id 27992
@@ -65,7 +66,7 @@ $ brew info jp2a
 jp2a: stable 1.0.7 (bottled)
 Convert JPG images to ASCII
 https://csl.name/jp2a/
-/usr/local/Cellar/jp2a/1.0.7 (9 files, 67.7KB) *
+/usr/local/Cellar/jp2a/1.0.7 (9 files, 67.7KB) *  <-- this should be 1.0.6_1
   Poured from bottle on 2019-09-06 at 15:59:33
 From: https://github.com/Homebrew/homebrew-core/blob/master/Formula/jp2a.rb
 ```
@@ -76,6 +77,8 @@ You can fix this by running the following commands:
 brew unlink jp2a
 brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/31b5579ccb72ccf24e9d01962e422aece563cff5/Formula/jp2a.rb
 ```
+
+On Ubuntu, you should be fine. Double-check that `1.0.6-6build1` is installed.
 
 
 ## Installation
