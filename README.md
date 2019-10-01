@@ -3,7 +3,10 @@
 # aic-bash
 > A bash script to query our API for artworks and render them as ASCII art
 
-Just a small side-project we did to show what could be done with our API.
+Just a small side-project we did to show what could be done with our museum's API.
+
+The Art Institute of Chicago (AIC) offers all of its public data via a centralized, searchable API. There, you can find data on artworks, artists, and places represented in our collection, and much more besides. For more information, check out our [Open Access](https://www.artic.edu/open-access) initiatives.
+
 
 ![Screenshot](example.png)
 
@@ -17,6 +20,7 @@ Please read this section in its entirety before installing anything.
  * [coreutils](https://www.gnu.org/software/coreutils/) (for [realpath](https://unix.stackexchange.com/questions/101080/realpath-command-not-found))
  * [jq](https://stedolan.github.io/jq/)
  * [jp2a](https://csl.name/jp2a/) v1.0.6
+ * [ImageMagick](http://www.imagemagick.org) (only for `--ratio`)
 
 **Not all terminals support truecolor!** See [TrueColor.md](https://gist.github.com/XVilka/8346728) for more information.
 
@@ -210,6 +214,7 @@ After running this query once, it will cache the results. If you run it again wi
 
 If you use `--cache` without specifying `[num]`, it'll default to 3600 seconds, i.e. 1 hour.
 
+
 ## Contributing
 
 We encourage your contributions. Please fork this repository and make your changes in a separate branch. To better understand how we organize our code, please review our [version control guidelines](https://docs.google.com/document/d/1B-27HBUc6LDYHwvxp3ILUcPTo67VFIGwo5Hiq4J9Jjw).
@@ -237,6 +242,7 @@ This project is released with a Contributor Code of Conduct. By participating in
 this project you agree to abide by its [terms](CODE_OF_CONDUCT.md).
 
 We welcome bug reports and questions under GitHub's [Issues](issues). For other concerns, you can reach our engineering team at [engineering@artic.edu](mailto:engineering@artic.edu)
+
 
 ## Licensing
 
