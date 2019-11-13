@@ -9,12 +9,27 @@
     ],
     "limit": 1,
     "query": {
-        "constant_score": {
-            "filter": {
-                "term": {
-                    "id": "VAR_ID"
+        "bool": {
+            "filter": [
+                {
+                    "term": {
+                        "id": "VAR_ID"
+                    }
+                },
+                {
+                    "term": {
+                        "is_public_domain": true
+                    }
+                },
+                {
+                    "exists": {
+                        "field": "image_id"
+                    }
                 }
-            }
+            ]
         }
     }
 }
+
+
+

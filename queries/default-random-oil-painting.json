@@ -16,12 +16,12 @@
                     "filter": [
                         {
                             "term": {
-                                "is_public_domain": true
+                                "material_ids": "TM-2451"
                             }
                         },
                         {
                             "term": {
-                                "material_ids": "TM-2451"
+                                "is_public_domain": true
                             }
                         },
                         {

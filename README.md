@@ -1,7 +1,7 @@
 ![Art Institute of Chicago](https://raw.githubusercontent.com/Art-Institute-of-Chicago/template/master/aic-logo.gif)
 
 # aic-bash
-> A bash script to query our API for artworks and render them as ASCII art
+> A bash script to query our API for public domain artworks and render them as ASCII art
 
 Just a small side-project we did to show what could be done with our museum's API.
 
@@ -46,6 +46,9 @@ brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/31b5579ccb
 sudo apt-get install jq jp2a coreutils
 ```
 
+
+### Debugging jp2a issues
+
 On macOS, if you see errors such as the following:
 
 ```bash
@@ -54,9 +57,6 @@ $ ./aic.sh --id 27992
 
 $ ./aic.sh --id 28560
 ./aic.sh: line 428: 16#,.''ooolxOc.;cooollllcllollllcclllllllloxxdxxdocclollc:cdxxxdlcokxdoolccldddxdddddddll;clcc,c : syntax error: operand expected (error token is ".''ooolxOc.;cooollllcllollllcclllllllloxxdxxdocclollc:cdxxxdlcokxdoolccldddxdddddddll;clcc,c ")
-
-$ ./aic.sh --id 6565
-./aic.sh: line 428: 16#OOOOOOOkOOOOOOOOO0kxxoooddclkOxxxkkkOOOOOOOOkxxxxxxxddddddkOOOOOOOkOOOO: value too great for base (error token is "16#OOOOOOOkOOOOOOOOO0kxxoooddclkOxxxkkkOOOOOOOOkxxxxxxxddddddkOOOOOOOkOOOO")
 ```
 
 ...you probably have jp2a v1.0.7, which is broken. Check here for more context:
@@ -144,8 +144,8 @@ usage: aic.sh [options] [query]
  2. Running it with the `-i` or `--id` option will look up a specific artwork by its identifier:
 
     ```bash
-    # Nighthawks by Edward Hopper
-    ./aic.sh --id 111628
+    # Stacks of Wheat (End of Summer) by Claude Monet
+    ./aic.sh --id 64818
     ```
 
  3. Running it with a string argument will perform a full-text search and show the first result:
@@ -155,7 +155,7 @@ usage: aic.sh [options] [query]
     ./aic.sh bedroom
 
     # Be sure to use quotes when searching for phrases!
-    ./aic.sh "american gothic"
+    ./aic.sh "la grande jatte"
 
     # With --limit, show a random artwork from the top <num> results
     ./aic.sh --limit 10 "mountains"
@@ -166,8 +166,10 @@ usage: aic.sh [options] [query]
     ```bash
     # Just some example queries we included for reference
     ./aic.sh --json "queries/default-random-asian-art.json"
-    ./aic.sh --json "queries/default-random-landscapes.json"
+    ./aic.sh --json "queries/default-random-landscape.json"
     ```
+
+Please note that these queries will only return public domain artworks.
 
 Under the hood, all of its queries are stored as JSON files in the `./queries` directory.
 
@@ -235,16 +237,13 @@ git checkout -b feature/good-short-description
 git push origin feature/good-short-description
 ```
 
-Then on github.com, create a Pull Request to merge your changes into our
-`develop` branch.
+Then on GitHub, [create a Pull Request](https://help.github.com/en/github/collaborating-with-issues-and-pull-requests/creating-a-pull-request) to merge your changes into our `develop` branch.
 
-This project is released with a Contributor Code of Conduct. By participating in
-this project you agree to abide by its [terms](CODE_OF_CONDUCT.md).
+This project is released with a Contributor Code of Conduct. By participating in this project you agree to abide by its [terms](CODE_OF_CONDUCT.md).
 
 We welcome bug reports and questions under GitHub's [Issues](issues). For other concerns, you can reach our engineering team at [engineering@artic.edu](mailto:engineering@artic.edu)
 
 
 ## Licensing
 
-This project is licensed under the [GNU Affero General Public License
-Version 3](LICENSE).
+This project is licensed under the [GNU Affero General Public License Version 3](LICENSE).

@@ -170,7 +170,7 @@ if [ ! -z "$OPT_ID" ]; then
     OPT_JSON="$DIR_QUERIES/default-id.json"
 elif [ -z "$OPT_JSON" ]; then
     if [ -z "$OPT_FULLTEXT" ]; then
-        OPT_JSON="$DIR_QUERIES/default-random-public-domain-oil-painting.json"
+        OPT_JSON="$DIR_QUERIES/default-random-oil-painting.json"
     else
         OPT_JSON="$DIR_QUERIES/default-fulltext.json"
     fi

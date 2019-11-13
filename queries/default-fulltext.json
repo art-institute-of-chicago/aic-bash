@@ -10,12 +10,19 @@
     "limit": "VAR_LIMIT",
     "q": "VAR_FULLTEXT",
     "query": {
-        "constant_score": {
-            "filter": {
-                "exists": {
-                    "field": "image_id"
+        "bool": {
+            "filter": [
+                {
+                    "term": {
+                        "is_public_domain": true
+                    }
+                },
+                {
+                    "exists": {
+                        "field": "image_id"
+                    }
                 }
-            }
+            ]
         }
     }
 }

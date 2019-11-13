@@ -18,6 +18,11 @@
                     }
                 },
                 {
+                    "term": {
+                        "is_public_domain": true
+                    }
+                },
+                {
                     "exists": {
                         "field": "image_id"
                     }
