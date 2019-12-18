@@ -90,7 +90,8 @@ On Ubuntu, you should be fine. Double-check that `1.0.6-6build1` is installed.
 For now, just clone this repository to wherever you store code on your system:
 
 ```bash
-git clone git@github.com:art-institute-of-chicago/aic-bash.git
+git clone https://github.com/art-institute-of-chicago/aic-bash
+
 ```
 
 If you'd like to run `aic.sh` from anywhere, you can add the repository directory to your `$PATH`:
