@@ -121,7 +121,7 @@ usage: aic.sh [options] [query]
   -c, --cache [num]     Cache results of this query for [num] seconds.
                         [num] defaults to 1 hour (3600 sec) if blank.
                         Use cached results if available.
-  -i, --id <id>         Retrive specific artwork via numeric id.
+  -i, --id <id>         Retrieve specific artwork via numeric id.
   -j, --json <path>     Path to JSON file containing a query to run.
   -l, --limit <num>     How many artworks to retrieve. Defaults to 1.
                         One random artwork from results will be shown.
