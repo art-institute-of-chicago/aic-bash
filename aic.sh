@@ -136,7 +136,7 @@ while test $# != 0; do
             echo "  -c, --cache [num]     Cache results of this query for [num] seconds."
             echo "                        [num] defaults to 1 hour (3600 sec) if blank."
             echo "                        Use cached results if available."
-            echo "  -i, --id <id>         Retrive specific artwork via numeric id."
+            echo "  -i, --id <id>         Retrieve specific artwork via numeric id."
             echo "  -j, --json <path>     Path to JSON file containing a query to run."
             echo "  -l, --limit <num>     How many artworks to retrieve. Defaults to 1."
             echo "                        One random artwork from results will be shown."
