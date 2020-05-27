@@ -27,7 +27,7 @@ DIR_CACHES="$DIR_SCRIPT/caches"
 FILE_IMAGE="/tmp/aic-bash.jpg"
 FILE_RESPONSE="/tmp/aic-bash.json"
 
-API_URL='https://aggregator-data.artic.edu/api/v1/search'
+API_URL='https://api.artic.edu/api/v1/search'
 
 OPT_FILL='--fill' # fill background by default
 OPT_SIZE='843' # default for artwork detail pages
