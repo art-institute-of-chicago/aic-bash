@@ -367,7 +367,7 @@ INPUT="$(jp2a --term-fit --color --html $OPT_FILL "$FILE_IMAGE")"
 export LINES="$OLD_LINES"
 
 # Remove HTML tags from beginning and end
-INPUT="${INPUT:449}"
+INPUT="${INPUT:455}"
 INPUT="${INPUT::-29}"
 INPUT="${INPUT::-5}" # <br/>
 
