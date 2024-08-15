@@ -218,6 +218,23 @@ After running this query once, it will cache the results. If you run it again wi
 If you use `--cache` without specifying `[num]`, it'll default to 3600 seconds, i.e. 1 hour.
 
 
+## Run in a container
+
+This repository provides a `Containerfile` to build a Container image, which includes all dependencies.
+
+Build it with:
+
+    podman build -t art-institute-of-chicago/aic-bash .
+
+Run it with:
+
+    podman run --rm -it aic-bash
+
+You can use it to run `aic.sh` commands directly:
+
+    podman run --rm aic-bash ./aic.sh --quality medium --ratio 120
+
+
 ## Contributing
 
 We encourage your contributions. Please fork this repository and make your changes in a separate branch. To better understand how we organize our code, please review our [version control guidelines](https://docs.google.com/document/d/1B-27HBUc6LDYHwvxp3ILUcPTo67VFIGwo5Hiq4J9Jjw).
