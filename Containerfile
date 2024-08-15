@@ -21,3 +21,5 @@ WORKDIR /usr/src/app
 RUN git remote add dylan-stark https://github.com/dylan-stark/aic-bash.git && \
     git fetch dylan-stark && \
     git rebase dylan-stark/extra-trim-on-input
+
+CMD [ "./aic.sh", "--quality", "medium", "--ratio", "120" ]

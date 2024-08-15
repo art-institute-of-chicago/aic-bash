@@ -228,11 +228,16 @@ Build it with:
 
 Run it with:
 
-    podman run --rm -it aic-bash
+    podman run --rm -t aic-bash
+
+Enter a shell with:
+
+    podman run --rm -t aic-bash
 
 You can use it to run `aic.sh` commands directly:
 
-    podman run --rm aic-bash ./aic.sh --quality medium --ratio 120
+    podman run --rm -t aic-bash ./aic.sh --quality medium
+    podman run --rm -t aic-bash ./aic.sh --quality medium --ratio 120
 
 
 ## Contributing
