@@ -13,7 +13,7 @@ The Art Institute of Chicago (AIC) offers all of its public data via a centraliz
 
 ## Requirements
 
-Please read this section in its entirety before installing anything. 
+Please read this section in its entirety before installing anything.
 
  * A terminal with [truecolor (24bit) support](https://gist.github.com/XVilka/8346728) (recommendations below)
  * [Bash v4.2](https://www.tldp.org/LDP/abs/html/bashver4.html#AEN21220) (Feb. 2011) or higher
