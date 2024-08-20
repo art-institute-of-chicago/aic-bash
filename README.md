@@ -22,7 +22,7 @@ Please read this section in its entirety before installing anything.
  * [jp2a](https://csl.name/jp2a/) v1.0.6
  * [ImageMagick](http://www.imagemagick.org) (only for `--ratio`)
 
-**Not all terminals support truecolor!** See [TrueColor.md](https://gist.github.com/XVilka/8346728) for more information.
+**Not all terminals support truecolor!** See [termstandard/colors](https://github.com/termstandard/colors) for more information.
 
 New to the command-line life? From testing, we recommend the following:
 
