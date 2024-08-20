@@ -13,7 +13,7 @@ The Art Institute of Chicago (AIC) offers all of its public data via a centraliz
 
 ## Requirements
 
-Please read this section in its entirety before installing anything. 
+Please read this section in its entirety before installing anything.
 
  * A terminal with [truecolor (24bit) support](https://gist.github.com/XVilka/8346728) (recommendations below)
  * [Bash v4.2](https://www.tldp.org/LDP/abs/html/bashver4.html#AEN21220) (Feb. 2011) or higher
@@ -216,6 +216,28 @@ Lastly, `--cache [num]` allows you to cache the API response, so that the script
 After running this query once, it will cache the results. If you run it again within the 24-hour window, it'll show a new random paperweight from the top 100 results without needing to re-query the API.
 
 If you use `--cache` without specifying `[num]`, it'll default to 3600 seconds, i.e. 1 hour.
+
+
+## Run in a container
+
+This repository provides a `Containerfile` to build a Container image, which includes all dependencies.
+
+Build it with:
+
+    podman build -t art-institute-of-chicago/aic-bash .
+
+Run it with:
+
+    podman run --rm -t aic-bash
+
+Enter a shell with:
+
+    podman run --rm -t aic-bash
+
+You can use it to run `aic.sh` commands directly:
+
+    podman run --rm -t aic-bash ./aic.sh --quality medium
+    podman run --rm -t aic-bash ./aic.sh --quality medium --ratio 120
 
 
 ## Contributing
