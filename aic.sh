@@ -390,10 +390,14 @@ if [ ! "$OPT_FILL" = '--fill' ]; then
         for ROW in "${ROWS[@]}"; do
 
             # Transform spans into space-separated quadruples of R G B [Char], using pipes as span-separators
-            ROW="$(echo "$ROW" | sed -E "s/<span style='color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2});'>(.)<\/span>/\1 \2 \3 \4|/g")"
+            ROW="$(echo "$ROW" | sed -E -e "s/&nbsp;/ /g" -e "s/<span style='color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2});'>(.)<\/span>/\1 \2 \3 \4|/g")"
 
             # Discard the last pipe
             ROW="${ROW::-1}"
+
+            if [ "$ROW" = "<pre" ]; then
+                continue;
+            fi
 
             # Split row into columns using pipes
             while IFS='|' read -ra COLS; do
@@ -429,10 +433,14 @@ else
         for ROW in "${ROWS[@]}"; do
 
             # Transform spans into space-separated quadruples of R G B [Char], using pipes as span-separators
-            ROW="$(echo "$ROW" | sed -E "s/<span style='color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2}); background-color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2});'>(.)<\/span>/\1 \2 \3 \4 \5 \6 \7|/g")"
+            ROW="$(echo "$ROW" | sed -E -e "s/&nbsp;/ /g" -e "s/<span style='color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2}); background-color:#([a-f0-9]{2})([a-f0-9]{2})([a-f0-9]{2});'>(.)<\/span>/\1 \2 \3 \4 \5 \6 \7|/g")"
 
             # Discard the last pipe
             ROW="${ROW::-1}"
+
+            if [ "$ROW" = "<pre" ]; then
+                continue;
+            fi
 
             # Split row into columns using pipes
             while IFS='|' read -ra COLS; do
